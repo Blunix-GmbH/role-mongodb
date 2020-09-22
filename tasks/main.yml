@@ -1,0 +1,29 @@
+- name: install requirements
+  apt:
+    name:
+      - gnupg2
+      - apt-transport-https
+
+- name: install mongodb apt key
+  apt_key:
+    url: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
+    state: present
+
+- name: install mongodb apt repository
+  apt_repository:
+    repo: "deb http://repo.mongodb.org/apt/debian {{ mongodb_distribution_release }}/mongodb-org/{{ mongodb_version }} main"
+    state: present
+
+- name: install mongodb-org
+  apt:
+    name: mongodb-org
+    state: present
+
+- name: template /etc/mongod.conf
+  template:
+    src: templates/etc/mongod.conf.j2
+    dest: /etc/mongod.conf
+    mode: 0640
+    owner: mongodb
+    group: mongodb
+  notify: restart mongod
